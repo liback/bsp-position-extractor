@@ -31,16 +31,22 @@ int main(int argc, char **argv)
 
 	common_file = fopen("cam_positions.csv", "w");
 
+	if (argc < 2) {
+		fprintf(stderr, "Usage: %s <directory>\n", argv[0]);
+
+		return 1;
+	}
+
 	if (common_file == NULL)
 	{
-		fprintf(stderr, "Error : Failed to open common_file - %s\n", strerror(errno));
+		fprintf(stderr, "Error: Failed to open common_file - %s\n", strerror(errno));
 
 		return 1;
 	}
 
 	if (NULL == (FD = opendir (argv[1])))
 	{
-		fprintf(stderr, "Error : Failed to open input directory (%s) - %s\n", argv[1], strerror(errno));
+		fprintf(stderr, "Error: Failed to open input directory (%s) - %s\n", argv[1], strerror(errno));
 		fclose(common_file);
 
 		return 1;
