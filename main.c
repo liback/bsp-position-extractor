@@ -7,6 +7,29 @@
 #include <errno.h>
 #include <stdbool.h>
 
+/*
+Replaces the dot of the filename with NULL
+and returns the new, file-extension-less string.
+ */
+char *stripFileExtension(char* filename) 
+{
+	char *retstr;
+	char *lastdot;
+
+	if (filename == NULL)
+		return NULL;
+
+	if ((retstr = malloc(strlen(filename) + 1)) == NULL)
+		return NULL;
+
+	strcpy(retstr,filename);
+	lastdot = strrchr(retstr, '.');
+	if (lastdot != NULL)
+		*lastdot = '\0';
+
+	return retstr;
+}
+
 int main(int argc, char **argv) 
 {
 	// File handling vars 
@@ -26,6 +49,32 @@ int main(int argc, char **argv)
 	// Used to check file extensions
 	char *fileExtension;
 	const char dot = '.';
+
+	// We don't bother checking the content
+	// until we reach the worldspawn entity...
+	bool isBelowJunkChars = 0;
+
+	char *curMap;
+
+	bool curItemIsIntermission = 0;
+	char curAngles[BUFSIZ];
+	char curPosition[BUFSIZ];
+
+	char curPosX[16];
+	char curPosY[16];
+	char curPosZ[16];
+
+	char curPitch[16];
+	char curYaw[16];
+	char curRoll[16];
+
+	bool foundOpenTag = 0;
+
+	// To parse the CSV
+	char tempBuf[100];
+	char seps[] = "\" ";
+	char *token;
+	int field = 0;
 
 	common_file = fopen("cam_positions.csv", "w");
 
@@ -77,31 +126,6 @@ int main(int argc, char **argv)
 
 		// If we ended up here we managed to open the file
 		printf("Reading: %s\n", fullpath);
-
-		// We don't bother checking the content
-		// until we reach the worldspawn entity...
-		bool isBelowJunkChars = 0;
-
-		// 
-		bool curItemIsIntermission = 0;
-		char curAngles[BUFSIZ];
-		char curPosition[BUFSIZ];
-
-		char curPosX[16];
-		char curPosY[16];
-		char curPosZ[16];
-
-		char curPitch[16];
-		char curYaw[16];
-		char curRoll[16];
-
-		bool foundOpenTag = 0;
-
-		// To parse the CSV
-		char tempBuf[100];
-		char seps[] = "\" ";
-		char *token;
-		int field = 0;
 
 		// fgets reads a line at a time and places result in buffer
 		while (fgets(buffer, BUFSIZ, entry_file) != NULL) {
@@ -172,8 +196,10 @@ int main(int argc, char **argv)
 							sprintf(curRoll,"%i", 0);
 						}
 						
+						curMap = stripFileExtension(in_file->d_name);
+
 						printf("%s,%s,%s,%s,%s,%s,%s\n", 
-							in_file->d_name,
+							curMap,
 							curPosX,
 							curPosY,
 							curPosZ,
@@ -183,7 +209,7 @@ int main(int argc, char **argv)
 							);
 
 						fprintf(common_file, "%s,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f\n", 
-							in_file->d_name,
+							curMap,
 							strtof(curPosX, NULL),
 							strtof(curPosY, NULL),
 							strtof(curPosZ, NULL),
@@ -192,6 +218,7 @@ int main(int argc, char **argv)
 							strtof(curRoll, NULL) 
 							);
 
+						free(curMap);
 						curItemIsIntermission = 0;
 						curPosX[0] = curPosY[0] = curPosZ[0] = curPitch[0] = curYaw[0] = curRoll[0] = 0;
 					}
