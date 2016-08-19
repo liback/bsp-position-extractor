@@ -7,8 +7,6 @@
 #include <errno.h>
 #include <stdbool.h>
 
-
-
 int main(int argc, char **argv) 
 {
 	// File handling vars 
@@ -37,15 +35,13 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (common_file == NULL)
-	{
+	if (common_file == NULL) {
 		fprintf(stderr, "Error: Failed to open common_file - %s\n", strerror(errno));
 
 		return 1;
 	}
 
-	if (NULL == (FD = opendir (argv[1])))
-	{
+	if (NULL == (FD = opendir (argv[1]))) {
 		fprintf(stderr, "Error: Failed to open input directory (%s) - %s\n", argv[1], strerror(errno));
 		fclose(common_file);
 
@@ -55,8 +51,7 @@ int main(int argc, char **argv)
 	// Print headers in output file
 	//fprintf(common_file, "map,x,y,z,pitch,yaw,roll\n");
 
-	while ((in_file = readdir(FD)))
-	{
+	while ((in_file = readdir(FD))) {
 		// Skip unix folder names
 		if (!strcmp(in_file->d_name, "."))
 			continue;
@@ -73,9 +68,8 @@ int main(int argc, char **argv)
 		sprintf(fullpath, "%s/%s", argv[1], in_file->d_name);
 
 		entry_file = fopen(fullpath, "rw");
-		if (entry_file == NULL)
-		{
-			fprintf(stderr, "Error : Failed to open entry file (%s) - %s\n", in_file->d_name, strerror(errno));
+		if (entry_file == NULL) {
+			fprintf(stderr, "Error: Failed to open entry file (%s) - %s\n", in_file->d_name, strerror(errno));
 			fclose(common_file);
 
 			return 1;
@@ -165,7 +159,6 @@ int main(int argc, char **argv)
 							field++;
 						}
 
-						
 						if (field < 3) {
 							// If we have no angle value then zero them all
 							sprintf(curPitch,"%i", 0);
@@ -178,7 +171,6 @@ int main(int argc, char **argv)
 							sprintf(curPitch,"%i", 0);
 							sprintf(curRoll,"%i", 0);
 						}
-						
 						
 						printf("%s,%s,%s,%s,%s,%s,%s\n", 
 							in_file->d_name,
@@ -199,6 +191,7 @@ int main(int argc, char **argv)
 							strtof(curYaw, NULL),
 							strtof(curRoll, NULL) 
 							);
+
 						curItemIsIntermission = 0;
 						curPosX[0] = curPosY[0] = curPosZ[0] = curPitch[0] = curYaw[0] = curRoll[0] = 0;
 					}
@@ -206,7 +199,6 @@ int main(int argc, char **argv)
 					foundOpenTag = 0;
 
 				} else {
-						
 					if (strcmp(buffer, STRING_INTERMISSION) == 0 || strcmp(buffer, STRING_SPAWN) == 0) 	{ curItemIsIntermission = 1; }
 					
 					if (strncmp(buffer, STRING_ORIGIN, 8) == 0) {
@@ -217,18 +209,13 @@ int main(int argc, char **argv)
 					if (strncmp(buffer, STRING_ANGLES, 7) == 0 || strncmp(buffer, STRING_MANGLES, 8) == 0) {
 						strncpy(curAngles, buffer, BUFSIZ);
 					}
-					
 				}
 			}
 		}
-
 		free(fullpath);
-
 		fclose(entry_file);		
 	}
-
 	fclose(common_file);
-
 }
 
 
