@@ -143,7 +143,6 @@ int main(int argc, char **argv)
 				// increment what we have found
 				} else if ((strcmp(buffer, "}\n") == 0) && foundOpenTag == 1) {
 					
-					// Shells
 					if (curItemIsIntermission) {
 
 						field = 0;
