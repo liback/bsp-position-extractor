@@ -40,8 +40,8 @@ int main(int argc, char **argv)
 	char buffer[BUFSIZ];
 
 	// Entity strings to match
-	const char STRING_INTERMISSION[37] 		= "\"classname\" \"info_intermission\"\n";
-	const char STRING_SPAWN[42] 			= "\"classname\" \"info_player_deathmatch\"\n";
+	const char STRING_INTERMISSION[36] 		= "\"classname\" \"info_intermission\"";
+	const char STRING_SPAWN[41] 			= "\"classname\" \"info_player_deathmatch\"";
 	const char STRING_ORIGIN[10]			= "\"origin\"";
 	const char STRING_ANGLES[10]			= "\"angle\"";
 	const char STRING_MANGLES[10]			= "\"mangle\"";
@@ -226,7 +226,7 @@ int main(int argc, char **argv)
 					foundOpenTag = 0;
 
 				} else {
-					if (strcmp(buffer, STRING_INTERMISSION) == 0 || strcmp(buffer, STRING_SPAWN) == 0) 	{ curItemIsIntermission = 1; }
+					if (strstr(buffer, STRING_INTERMISSION) || strstr(buffer, STRING_SPAWN)) 	{ curItemIsIntermission = 1; }
 					
 					if (strncmp(buffer, STRING_ORIGIN, 8) == 0) {
 						strncpy(curPosition, buffer, BUFSIZ);
