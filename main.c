@@ -7,6 +7,32 @@
 #include <errno.h>
 #include <stdbool.h>
 
+int lineIsPosition(char buffer[]);
+char *stripFileExtension(char* filename);
+
+// Note: TF types not yet used!
+enum posTypes {
+	POS_INTERMISSION,
+	POS_SPAWN_DM,
+	POS_SPAWN_CTF_T1,
+	POS_SPAWN_CTF_T2,
+	POS_SPAWN_TF_T1,
+	POS_SPAWN_TF_T2
+};
+
+const char* posTypes[] = { "intermission", "spawn-dm", "spawn-ctf-t1", "spawn-ctf-t2", "spawn-tf-t1", "spawn-tf-t2" };
+
+// Entity strings to match
+const char STRING_INTERMISSION[36] 		= "\"classname\" \"info_intermission\"";
+const char STRING_SPAWN[41] 			= "\"classname\" \"info_player_deathmatch\"";
+const char STRING_SPAWN_CTF[35]			= "\"classname\" \"info_player_teamspawn\"";
+const char STRING_SPAWN_CTF_T1[32]		= "\"classname\" \"info_player_team1\"";
+const char STRING_SPAWN_CTF_T2[32]		= "\"classname\" \"info_player_team2\"";
+
+const char STRING_ORIGIN[10]			= "\"origin\"";
+const char STRING_ANGLES[10]			= "\"angle\"";
+const char STRING_MANGLES[10]			= "\"mangle\"";
+
 /*
 Replaces the dot of the filename with NULL
 and returns the new, file-extension-less string.
@@ -30,6 +56,27 @@ char *stripFileExtension(char* filename)
 	return retstr;
 }
 
+/*
+Checks if the current line in buffer is
+an intermission or spawn position.
+ */
+int lineIsPosition(char buffer[]) 
+{
+	if (strstr(buffer, STRING_INTERMISSION)) {
+		return POS_INTERMISSION;
+	} else if (strstr(buffer, STRING_SPAWN)) {
+		return POS_SPAWN_DM;
+	} else if (strstr(buffer, STRING_SPAWN_CTF_T1)) {
+		return POS_SPAWN_CTF_T1;
+	} else if (strstr(buffer, STRING_SPAWN_CTF_T2)) {
+		return POS_SPAWN_CTF_T2;
+	}
+
+	return -1;
+}
+
+
+
 int main(int argc, char **argv) 
 {
 	// File handling vars 
@@ -38,17 +85,6 @@ int main(int argc, char **argv)
 	FILE *common_file;
 	FILE *entry_file;
 	char buffer[BUFSIZ];
-
-	// Entity strings to match
-	const char STRING_INTERMISSION[36] 		= "\"classname\" \"info_intermission\"";
-	const char STRING_SPAWN[41] 			= "\"classname\" \"info_player_deathmatch\"";
-	const char STRING_SPAWN_CTF[35]			= "\"classname\" \"info_player_teamspawn\"";
-	const char STRING_SPAWN_CTF_T1[31]		= "\"classname\" \"info_player_team1\"";
-	const char STRING_SPAWN_CTF_T2[31]		= "\"classname\" \"info_player_team2\"";
-
-	const char STRING_ORIGIN[10]			= "\"origin\"";
-	const char STRING_ANGLES[10]			= "\"angle\"";
-	const char STRING_MANGLES[10]			= "\"mangle\"";
 
 	// Used to check file extensions
 	char *fileExtension;
@@ -59,6 +95,8 @@ int main(int argc, char **argv)
 	bool isBelowJunkChars = 0;
 
 	char *curMap;
+
+	int curPosType = 0;
 
 	bool curItemIsPosition = 0;
 	char curAngles[BUFSIZ];
@@ -201,24 +239,26 @@ int main(int argc, char **argv)
 						
 						curMap = stripFileExtension(in_file->d_name);
 
-						printf("%s,%s,%s,%s,%s,%s,%s\n", 
+						printf("%s,%s,%s,%s,%s,%s,%s,%s\n", 
 							curMap,
 							curPosX,
 							curPosY,
 							curPosZ,
 							curPitch,
 							curYaw,
-							curRoll 
+							curRoll,
+							posTypes[curPosType]
 							);
 
-						fprintf(common_file, "%s,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f\n", 
+						fprintf(common_file, "%s,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%s\n", 
 							curMap,
 							strtof(curPosX, NULL),
 							strtof(curPosY, NULL),
 							strtof(curPosZ, NULL),
 							strtof(curPitch, NULL),
 							strtof(curYaw, NULL),
-							strtof(curRoll, NULL) 
+							strtof(curRoll, NULL),
+							posTypes[curPosType]
 							);
 
 						free(curMap);
@@ -229,8 +269,9 @@ int main(int argc, char **argv)
 					foundOpenTag = 0;
 
 				} else {
-					if (strstr(buffer, STRING_INTERMISSION) || strstr(buffer, STRING_SPAWN) || strstr(buffer, STRING_SPAWN_CTF) || strstr(buffer, STRING_SPAWN_CTF_T1) || strstr(buffer, STRING_SPAWN_CTF_T2)) 	{ 
-						curItemIsPosition = 1; 
+					if (lineIsPosition(buffer) != -1) {
+						curItemIsPosition = 1;
+						curPosType = lineIsPosition(buffer);
 					}
 					
 					if (strncmp(buffer, STRING_ORIGIN, 8) == 0) {
@@ -249,5 +290,3 @@ int main(int argc, char **argv)
 	}
 	fclose(common_file);
 }
-
-
