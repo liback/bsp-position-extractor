@@ -42,6 +42,10 @@ int main(int argc, char **argv)
 	// Entity strings to match
 	const char STRING_INTERMISSION[36] 		= "\"classname\" \"info_intermission\"";
 	const char STRING_SPAWN[41] 			= "\"classname\" \"info_player_deathmatch\"";
+	const char STRING_SPAWN_CTF[35]			= "\"classname\" \"info_player_teamspawn\"";
+	const char STRING_SPAWN_CTF_T1[31]		= "\"classname\" \"info_player_team1\"";
+	const char STRING_SPAWN_CTF_T2[31]		= "\"classname\" \"info_player_team2\"";
+
 	const char STRING_ORIGIN[10]			= "\"origin\"";
 	const char STRING_ANGLES[10]			= "\"angle\"";
 	const char STRING_MANGLES[10]			= "\"mangle\"";
@@ -56,7 +60,7 @@ int main(int argc, char **argv)
 
 	char *curMap;
 
-	bool curItemIsIntermission = 0;
+	bool curItemIsPosition = 0;
 	char curAngles[BUFSIZ];
 	char curPosition[BUFSIZ];
 
@@ -143,7 +147,7 @@ int main(int argc, char **argv)
 				// increment what we have found
 				} else if ((strcmp(buffer, "}\n") == 0) && foundOpenTag == 1) {
 					
-					if (curItemIsIntermission) {
+					if (curItemIsPosition) {
 
 						field = 0;
 						token = strtok(curPosition, seps);
@@ -218,14 +222,16 @@ int main(int argc, char **argv)
 							);
 
 						free(curMap);
-						curItemIsIntermission = 0;
+						curItemIsPosition = 0;
 						curPosX[0] = curPosY[0] = curPosZ[0] = curPitch[0] = curYaw[0] = curRoll[0] = 0;
 					}
 					
 					foundOpenTag = 0;
 
 				} else {
-					if (strstr(buffer, STRING_INTERMISSION) || strstr(buffer, STRING_SPAWN)) 	{ curItemIsIntermission = 1; }
+					if (strstr(buffer, STRING_INTERMISSION) || strstr(buffer, STRING_SPAWN) || strstr(buffer, STRING_SPAWN_CTF) || strstr(buffer, STRING_SPAWN_CTF_T1) || strstr(buffer, STRING_SPAWN_CTF_T2)) 	{ 
+						curItemIsPosition = 1; 
+					}
 					
 					if (strncmp(buffer, STRING_ORIGIN, 8) == 0) {
 						strncpy(curPosition, buffer, BUFSIZ);
