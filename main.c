@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 		while (fgets(buffer, BUFSIZ, entry_file) != NULL) {
 
 			if (isBelowJunkChars == 0) {
-				if (strcmp(buffer, "\"classname\" \"worldspawn\"\n") == 0) {
+				if (strncmp(buffer, "\"classname\" \"worldspawn\"", 24) == 0) {
 					isBelowJunkChars = 1;
 				}
 			} else {
