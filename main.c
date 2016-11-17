@@ -303,6 +303,8 @@ int main(int argc, char **argv)
 				} else {
 					if (strncmp(buffer, STRING_TF_T1, 13) == 0) { curTeam = 1; }
 					if (strncmp(buffer, STRING_TF_T2, 13) == 0) { curTeam = 2; }
+					if (strncmp(buffer, STRING_TF_T3, 13) == 0) { curTeam = 3; }
+					if (strncmp(buffer, STRING_TF_T4, 13) == 0) { curTeam = 4; }
 
 					if (lineIsPosition(buffer) != -1) {
 						curItemIsPosition = 1;
