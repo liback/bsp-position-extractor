@@ -117,6 +117,8 @@ int main(int argc, char **argv)
 	char seps[] = "\" ";
 	char *token;
 	int field = 0;
+	int mapCount = 0;
+	int positionCount = 0;
 
 	common_file = fopen("cam_positions.csv", "w");
 
@@ -167,6 +169,7 @@ int main(int argc, char **argv)
 		}
 
 		// If we ended up here we managed to open the file
+		mapCount++;
 		printf("Reading: %s\n", fullpath);
 
 		// fgets reads a line at a time and places result in buffer
@@ -261,6 +264,8 @@ int main(int argc, char **argv)
 							posTypes[curPosType]
 							);
 
+						positionCount++;
+
 						free(curMap);
 						curItemIsPosition = 0;
 						curPosX[0] = curPosY[0] = curPosZ[0] = curPitch[0] = curYaw[0] = curRoll[0] = 0;
@@ -289,4 +294,5 @@ int main(int argc, char **argv)
 		fclose(entry_file);		
 	}
 	fclose(common_file);
+	printf("Finished reading %i files and saved %i positions.\n", mapCount, positionCount);
 }
