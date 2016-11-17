@@ -16,18 +16,27 @@ enum posTypes {
 	POS_SPAWN_DM,
 	POS_SPAWN_CTF_T1,
 	POS_SPAWN_CTF_T2,
+	POS_SPAWN_TEAM,
 	POS_SPAWN_TF_T1,
-	POS_SPAWN_TF_T2
+	POS_SPAWN_TF_T2,
+	POS_SPAWN_TF_T3,
+	POS_SPAWN_TF_T4
 };
 
-const char* posTypes[] = { "intermission", "spawn-dm", "spawn-ctf-t1", "spawn-ctf-t2", "spawn-tf-t1", "spawn-tf-t2" };
+const char* posTypes[] = { "intermission", "spawn-dm", "spawn-ctf-t1", "spawn-ctf-t2", "placeholder", "spawn-tf-t1", "spawn-tf-t2", "spawn-tf-t3", "spawn-tf-t4" };
 
 // Entity strings to match
 const char STRING_INTERMISSION[36] 		= "\"classname\" \"info_intermission\"";
 const char STRING_SPAWN[41] 			= "\"classname\" \"info_player_deathmatch\"";
-const char STRING_SPAWN_CTF[35]			= "\"classname\" \"info_player_teamspawn\"";
+const char STRING_SPAWN_TEAM[35]		= "\"classname\" \"info_player_teamspawn\"";
+const char STRING_SPAWN_TEAM_ALT[19]	= "\"classname\" \"i_p_t\"";
 const char STRING_SPAWN_CTF_T1[32]		= "\"classname\" \"info_player_team1\"";
 const char STRING_SPAWN_CTF_T2[32]		= "\"classname\" \"info_player_team2\"";
+
+const char STRING_TF_T1[13]				= "\"team_no\" \"1\"";
+const char STRING_TF_T2[13]				= "\"team_no\" \"2\"";
+const char STRING_TF_T3[13]				= "\"team_no\" \"3\"";
+const char STRING_TF_T4[13]				= "\"team_no\" \"4\"";
 
 const char STRING_ORIGIN[10]			= "\"origin\"";
 const char STRING_ANGLES[10]			= "\"angle\"";
@@ -70,6 +79,10 @@ int lineIsPosition(char buffer[])
 		return POS_SPAWN_CTF_T1;
 	} else if (strstr(buffer, STRING_SPAWN_CTF_T2)) {
 		return POS_SPAWN_CTF_T2;
+	} else if (strstr(buffer, STRING_SPAWN_TEAM)) {
+		return POS_SPAWN_TEAM;
+	} else if (strstr(buffer, STRING_SPAWN_TEAM_ALT)) {
+		return POS_SPAWN_TEAM;
 	}
 
 	return -1;
@@ -109,6 +122,8 @@ int main(int argc, char **argv)
 	char curPitch[16];
 	char curYaw[16];
 	char curRoll[16];
+
+	int curTeam = 0;
 
 	bool foundOpenTag = 0;
 
@@ -242,6 +257,18 @@ int main(int argc, char **argv)
 						
 						curMap = stripFileExtension(in_file->d_name);
 
+						if (curPosType == POS_SPAWN_TEAM) {
+							if (curTeam == 1) {
+								curPosType = POS_SPAWN_TF_T1;
+							} else if (curTeam == 2) {
+								curPosType = POS_SPAWN_TF_T2;
+							} else if (curTeam == 3) {
+								curPosType = POS_SPAWN_TF_T3;
+							} else if (curTeam == 4) {
+								curPosType = POS_SPAWN_TF_T4;
+							}
+						}
+
 						printf("%s,%s,%s,%s,%s,%s,%s,%s\n", 
 							curMap,
 							curPosX,
@@ -268,12 +295,15 @@ int main(int argc, char **argv)
 
 						free(curMap);
 						curItemIsPosition = 0;
-						curPosX[0] = curPosY[0] = curPosZ[0] = curPitch[0] = curYaw[0] = curRoll[0] = 0;
+						curPosX[0] = curPosY[0] = curPosZ[0] = curPitch[0] = curYaw[0] = curRoll[0] = curTeam = 0;
 					}
 					
 					foundOpenTag = 0;
 
 				} else {
+					if (strncmp(buffer, STRING_TF_T1, 13) == 0) { curTeam = 1; }
+					if (strncmp(buffer, STRING_TF_T2, 13) == 0) { curTeam = 2; }
+
 					if (lineIsPosition(buffer) != -1) {
 						curItemIsPosition = 1;
 						curPosType = lineIsPosition(buffer);
