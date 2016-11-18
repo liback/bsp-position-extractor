@@ -196,12 +196,12 @@ int main(int argc, char **argv)
 				}
 			} else {
 				// We found an entity opening tag
-				if (strcmp(buffer, "{\n") == 0) {
+				if (strncmp(buffer, "{", 1) == 0) {
 					foundOpenTag = 1;
 
 				// We found an entity closening tag,
 				// increment what we have found
-				} else if ((strcmp(buffer, "}\n") == 0) && foundOpenTag == 1) {
+				} else if ((strncmp(buffer, "}", 1) == 0) && foundOpenTag == 1) {
 					
 					if (curItemIsPosition) {
 
