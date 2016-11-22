@@ -39,8 +39,9 @@ const char STRING_TF_T3[13]				= "\"team_no\" \"3\"";
 const char STRING_TF_T4[13]				= "\"team_no\" \"4\"";
 
 const char STRING_ORIGIN[10]			= "\"origin\"";
-const char STRING_ANGLES[10]			= "\"angle\"";
-const char STRING_MANGLES[10]			= "\"mangle\"";
+const char STRING_ANGLE[7]				= "\"angle\"";
+const char STRING_ANGLES[8]				= "\"angles\"";
+const char STRING_MANGLE[8]				= "\"mangle\"";
 
 /*
 Replaces the dot of the filename with NULL
@@ -226,7 +227,6 @@ int main(int argc, char **argv)
 
 						field = 0;
 						token = strtok(curAngles, seps);
-						
 						while (token != NULL) {
 							if (field == 1)
 								strcpy(curPitch, token);
@@ -295,9 +295,11 @@ int main(int argc, char **argv)
 
 						free(curMap);
 						curItemIsPosition = 0;
+
 						curPosX[0] = curPosY[0] = curPosZ[0] = curPitch[0] = curYaw[0] = curRoll[0] = curTeam = 0;
 					}
 					
+					curAngles[0] = 0;
 					foundOpenTag = 0;
 
 				} else {
@@ -316,7 +318,7 @@ int main(int argc, char **argv)
 					}
 
 					// For some reason the angles can be named either angles or mangles in bsp files...
-					if (strncmp(buffer, STRING_ANGLES, 7) == 0 || strncmp(buffer, STRING_MANGLES, 8) == 0) {
+					if (strncmp(buffer, STRING_ANGLE, 7) == 0 || strncmp(buffer, STRING_ANGLES, 8) == 0 || strncmp(buffer, STRING_MANGLE, 8) == 0) {
 						strncpy(curAngles, buffer, BUFSIZ);
 					}
 				}
